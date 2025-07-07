@@ -1,0 +1,212 @@
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Klaverjas Power Meter</title>
+    <meta name="description" content="Upload your Klaverjas games and find out who's the true champion!" />
+
+    <link rel="icon" href="favicon.png" type="image/png" />
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Klaverjas Power Meter ♣️</h1>
+        </div>
+        <div class="description">
+            <div class="container">
+                <h2>About</h2>
+                <p>
+                    Think you're the best Klaverjas player around?<br>
+                    Or just curious how your group stacks up?<br>
+                    You've come to the right place!<br>
+                    The Klaverjas Power Meter uses statistics to reveal who's truly dominating the table — and who
+                    might just be getting lucky.<br>
+                    Upload your game data and find out in seconds!<br><br>
+                    <a href="data_template.csv" download>Download Data Template</a> / <a href="example_data.csv"
+                        download>Download Example Data</a>
+                </p>
+
+            </div>
+        </div>
+    </header>
+    <main>
+        <form id="analyze-form" enctype="multipart/form-data">
+            <div class="container">
+                <h2>Fill out the form</h2>
+                <!-- Alpha input -->
+                <label for="alpha">
+                    Alpha (significance level)
+                    <button type="button" class="info-btn" id="alpha-info-btn">ℹ️</button>
+                </label>
+                <div class="info-text" id="alpha-info-text" style="display: none;">
+                    <strong>What is Alpha?</strong><br>
+                    Alpha sets the threshold for how certain you want to be that a player is truly better than
+                    another.<br>
+                    A typical value is 0.05, meaning there's only a 5% chance your finding is wrong.<br>
+                    Lower alpha means stronger proof needed, higher alpha means easier to call someone better — but with
+                    less
+                    certainty.
+                </div>
+                <input type="number" id="alpha" name="alpha" step="0.01" min="0" max="1" value="0.05" required>
+                <br><br>
+
+                <!-- File input -->
+                <label for="file">
+                    Upload your data file
+                    <button type="button" class="info-btn" id="file-info-btn">ℹ️</button>
+                </label>
+                <div class="info-text" id="file-info-text" style="display: none;">
+                    <strong>File Format:</strong><br>
+                    Upload a CSV or Excel file with four named columns.<br>
+                    The column names do not matter.<br>
+                    Each row should list the four players of one game: the first two columns for the winning team, and
+                    the
+                    last
+                    two columns for the losing team.
+                </div>
+                <input type="file" id="file" name="file" accept=".csv, .xlsx" required>
+                <br><br>
+
+                <button type="submit">Analyze</button>
+                <div class="error-msg-wrapper">
+                    <br>
+                    <span id="form-error"></span>
+                </div>
+            </div>
+        </form>
+    </main>
+    <div class="results">
+        <div class="container">
+            <h2>Results 🚀</h2>
+            <div class="scoreboard">
+                <h3>Score board</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th style="text-align: right;">Skill (Win %)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- <tr>
+                                <th>D</th>
+                                <td>4</td>
+                            </tr>
+                            <tr>
+                                <th>B</th>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <th>A</th>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <th>C</th>
+                                <td>2</td>
+                            </tr> -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="interpretation">
+                <h3>Interpretation</h3>
+                <p id="sig-description">
+                    The statements below are statistically significant.<br>
+                    This means the change that they are incorrect is less than rougly <span id="alpha-holder"></span>%.
+                </p>
+                <p id="unsig-description">
+                    No one is playing significantly better than the others.<br>
+                    Think this can not be the case?<br>
+                    Think that can't be true? Gather more evidence by playing additional games!<br>
+                    Alternatively, you could lower the alpha level for a more generous — though less robust —
+                    evaluation.
+                </p>
+                <ul>
+                    <!-- <li>
+                        D is significantly more likely to win than A
+                    </li>
+                    <li>
+                        B is significantly more likely to win than C
+                    </li> -->
+                </ul>
+            </div>
+            <div class="statistical">
+                <h3>Statistical Table</h3>
+                <p>
+                    The table compares each pair of players: positive values mean the row player is more likely to win,
+                    negative means less likely. Values show estimated skill differences with uncertainty in parentheses.
+                    Green highlights a statistically significant advantage, red a significant disadvantage. Roughly,
+                    exp(value) tells how many times more likely the row player is to win.
+                </p>
+                <div class="table-wrapper">
+                    <table>
+                        <!-- <thead>
+                            <tr>
+                                <th></th>
+                                <th>D</th>
+                                <th>B</th>
+                                <th>A</th>
+                                <th>C</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>D</th>
+                                <td class="diag"></td>
+                                <td>6.05 (213.10)</td>
+                                <td class="sig-pos">0.35 (0.94)</td>
+                                <td>6.40 (213.10)</td>
+                            </tr>
+                            <tr>
+                                <th>B</th>
+                                <td>-6.05 (213.10)</td>
+                                <td class="diag"></td>
+                                <td>-5.71 (213.10)</td>
+                                <td class="sig-pos">0.35 (0.94)</td>
+                            </tr>
+                            <tr>
+                                <th>A</th>
+                                <td class="sig-neg">-0.35 (0.94)</td>
+                                <td>5.71 (213.10)</td>
+                                <td class="diag"></td>
+                                <td>6.05 (213.10)</td>
+                            </tr>
+                            <tr>
+                                <th>C</th>
+                                <td>-6.40 (213.10)</td>
+                                <td class="sig-neg">-0.35 (0.94)</td>
+                                <td>-6.05 (213.10)</td>
+                                <td class="diag"></td>
+                            </tr>
+                        </tbody> -->
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            ♣️♣️♣️♣️♣️♣️♣️♣️
+        </div>
+    </footer>
+
+
+    <script>
+        document.getElementById('alpha-info-btn').addEventListener('click', () => {
+            const el = document.getElementById('alpha-info-text');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.getElementById('file-info-btn').addEventListener('click', () => {
+            const el = document.getElementById('file-info-text');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        });
+    </script>
+
+    <script src="process-form.js"></script>
+</body>

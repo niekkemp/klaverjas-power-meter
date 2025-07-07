@@ -1,0 +1,206 @@
+/* Base styles */
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+    color: rgba(0, 0, 0, 0.8);
+    box-sizing: border-box;
+}
+
+/* Headings */
+h1 {
+    font-size: 2rem;
+    margin: 0 0 0.5rem 0;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin: 2rem 0 0.5rem 0;
+}
+
+h3 {
+    font-size: 1.25rem;
+    margin: 1.5rem 0 0.5rem 0;
+}
+
+/* Containers */
+.container {
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0.5rem;
+    }
+}
+
+/* Sections */
+.description {
+    border-block: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.results {
+    display: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+/* Labels and info */
+label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.info-btn {
+    appearance: none;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+}
+
+.info-text {
+    margin-bottom: 0.25rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Inputs */
+input[type="number"],
+input[type="file"] {
+    font: inherit;
+    color: inherit;
+    box-sizing: border-box;
+    outline: none;
+}
+
+input[type="number"] {
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 0.25rem;
+    background: none;
+    padding: 0.25rem 0.5rem;
+}
+
+input[type="file"] {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    font: inherit;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Buttons */
+button[type="submit"] {
+    font: inherit;
+    cursor: pointer;
+    border: 1px solid #3498db;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(52, 152, 219, 0.05);
+    color: #3498db;
+    transition: background-color 0.2s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+button[type="submit"]:hover {
+    background-color: rgba(52, 152, 219, 0.15);
+}
+
+button[type="submit"]:focus {
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+}
+
+/* Tables */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.scoreboard table {
+    max-width: 300px;
+}
+
+.scoreboard th,
+.scoreboard td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.scoreboard td {
+    text-align: right;
+}
+
+.statistical th,
+.statistical td {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+}
+
+/* Error message */
+.error-msg-wrapper {
+    color: rgba(231, 76, 60, 0.8);
+    ;
+}
+
+/* Significance coloring */
+.sig-pos {
+    background-color: rgba(46, 204, 113, 0.15);
+}
+
+.sig-neg {
+    background-color: rgba(231, 76, 60, 0.15);
+}
+
+.diag {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Interpretation */
+.interpretation ul {
+    padding-left: 1.25rem;
+    line-height: 1.4;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+footer .container {
+    text-align: end;
+}
