@@ -35,7 +35,7 @@ document.getElementById('analyze-form').addEventListener('submit', async functio
     // Do api request
     try {
         // Api request
-        const response = await fetch('http://127.0.0.1:5000/analyze', {
+        const response = await fetch('https://klaverjas-power-meter.onrender.com/analyze', {
             method: 'POST',
             body: formData
         });
