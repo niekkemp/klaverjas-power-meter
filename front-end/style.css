@@ -5,7 +5,6 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    overflow-x: hidden;
     font-family: 'Roboto', sans-serif;
     color: rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
@@ -51,12 +50,6 @@ h3 {
     border-block: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.results {
-    display: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-}
-
 /* Labels and info */
 label {
     display: block;
@@ -76,8 +69,9 @@ label {
 
 .info-text {
     margin-bottom: 0.25rem;
-    padding-left: 0.5rem;
-    border-left: 2px solid rgba(0, 0, 0, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-left: 4px solid rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.02);
 }
 
 /* Inputs */
@@ -87,6 +81,7 @@ input[type="file"] {
     color: inherit;
     box-sizing: border-box;
     outline: none;
+    max-width: 100%;
 }
 
 input[type="number"] {
@@ -103,32 +98,91 @@ input[type="file"] {
     margin: 0;
 }
 
+/* File upload button style (WebKit only) */
+label {
+    font-weight: 600;
+}
+
 input[type="file"]::-webkit-file-upload-button {
     font: inherit;
+    color: inherit;
+    cursor: pointer;
+    background: none;
     border: 1px solid rgba(0, 0, 0, 0.6);
     border-radius: 0.25rem;
     padding: 0.25rem 0.5rem;
-    background: none;
-    color: inherit;
-    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 input[type="file"]::-webkit-file-upload-button:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Buttons */
-button[type="submit"] {
-    font: inherit;
+.error-msg-wrapper {
+    color: rgba(231, 76, 60, 0.8);
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 0.15rem;
+    background: none;
     cursor: pointer;
-    border: 1px solid #3498db;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    margin: 0;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+    background-color: rgba(52, 152, 219, 0.05);
+    border-color: #3498db;
+}
+
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    width: 0.35rem;
+    height: 0.65rem;
+    border: solid #3498db;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+
+
+/* Buttons */
+button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.6);
     border-radius: 0.25rem;
     padding: 0.25rem 0.5rem;
-    background-color: rgba(52, 152, 219, 0.05);
-    color: #3498db;
     transition: background-color 0.2s ease;
     box-sizing: border-box;
     outline: none;
+}
+
+button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.info-btn:hover {
+    background-color: transparent !important;
+}
+
+/* Submit button (blue styling) */
+button[type="submit"] {
+    color: #3498db;
+    border-color: #3498db;
+    background-color: rgba(52, 152, 219, 0.05);
 }
 
 button[type="submit"]:hover {
@@ -139,62 +193,6 @@ button[type="submit"]:focus {
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
 }
 
-/* Tables */
-.table-wrapper {
-    overflow-x: auto;
-}
-
-table {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-.scoreboard table {
-    max-width: 300px;
-}
-
-.scoreboard th,
-.scoreboard td {
-    padding: 0.5rem;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-}
-
-.scoreboard td {
-    text-align: right;
-}
-
-.statistical th,
-.statistical td {
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 0.5rem;
-}
-
-/* Error message */
-.error-msg-wrapper {
-    color: rgba(231, 76, 60, 0.8);
-    ;
-}
-
-/* Significance coloring */
-.sig-pos {
-    background-color: rgba(46, 204, 113, 0.15);
-}
-
-.sig-neg {
-    background-color: rgba(231, 76, 60, 0.15);
-}
-
-.diag {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-/* Interpretation */
-.interpretation ul {
-    padding-left: 1.25rem;
-    line-height: 1.4;
-}
-
 /* Footer */
 footer {
     margin-top: auto;
@@ -203,4 +201,81 @@ footer {
 
 footer .container {
     text-align: end;
+}
+
+/* Results */
+
+.loading {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    display: none;
+}
+
+.load-icon {
+    display: inline-block;
+    transform: rotate(90deg);
+}
+
+
+
+.results {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    display: none;
+}
+
+
+
+.table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    min-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+
+td,
+th {
+    text-align: left;
+    white-space: nowrap;
+    padding: 0.5rem;
+}
+
+thead tr {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+tbody tr {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#pairwise-table {
+    display: none;
+    opacity: 0;
+    transform: translateY(-25px);
+    transition: all 0.5s ease;
+}
+
+#pairwise-table.active {
+    transform: none;
+    opacity: 1;
+}
+
+#tau-wrapper {
+    display: none;
+}
+
+.results {
+    opacity: 0;
+    transform: translateY(-25px);
+    transition: all 0.5s ease;
+}
+
+.results.active {
+    transform: none;
+    opacity: 1;
 }

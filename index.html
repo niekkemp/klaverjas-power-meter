@@ -1,0 +1,313 @@
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Klaverjas Power Meter</title>
+    <meta name="description" content="Upload your Klaverjas games and find out who's the true champion!" />
+
+    <link rel="icon" href="front-end/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="front-end/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1>Klaverjas Power Meter ♣️</h1>
+        </div>
+        <div class="description">
+            <div class="container">
+                <h2>About</h2>
+                <p>Who's the best Klaverjas player in your group?<br>
+                    Are they truly more skilled — or just getting lucky?<br>
+                    Find out now by uploading your match results!<br><br>
+                    <a href="front-end/data_template.csv" download>Download Data Template</a> / <a
+                        href="front-end/example_data.csv" download>Download Example Data</a>
+                </p>
+
+            </div>
+        </div>
+    </header>
+    <main>
+        <form id="analyze-form" enctype="multipart/form-data">
+            <div class="container">
+                <h2>Fill out the form</h2>
+
+                <!-- File input -->
+                <label for="file">
+                    Upload your data file
+                    <button type="button" class="info-btn" id="file-info-btn" aria-controls="file-info-text">ℹ️</button>
+                </label>
+                <div class="info-text" id="file-info-text" style="display: none;">
+                    <strong>File Format:</strong><br>
+                    Upload a CSV or Excel file with four columns — each containing player names.<br>
+                    The file must include column headers, but their names don’t matter.<br>
+                    Each row should represent one game: the first two columns are the winners, the last two the losers.
+                </div>
+                <input type="file" id="file" name="file" accept=".csv, .xlsx" required>
+                <br><br>
+
+                <!-- Alpha input -->
+                <label for="alpha">
+                    Chance of making a mistake (alpha)
+                    <button type="button" class="info-btn" id="alpha-info-btn"
+                        aria-controls="alpha-info-text">ℹ️</button>
+                </label>
+                <div class="info-text" id="alpha-info-text" style="display: none;">
+                    <strong>What is alpha?</strong><br>
+                    Alpha controls how sure you want to be before calling one player better than another.<br>
+                    It sets the chance you're willing to take that someone just got lucky.<br>
+                    A typical value is 0.05 — meaning a 5% chance of being wrong.<br>
+                    <strong>Lower alpha</strong> = more certainty needed,<br>
+                    <strong>Higher alpha</strong> = easier to call someone better, but with more risk of being wrong.
+                </div>
+                <input type="number" id="alpha" name="alpha" step="0.01" min="0" max="1" value="0.05" required>
+                <br><br>
+
+                <!-- Ridge input -->
+                <label for="ridge">
+                    Want to use Ridge?
+                    <button type="button" class="info-btn" id="ridge-info-btn"
+                        aria-controls="ridge-info-text">ℹ️</button>
+                </label>
+                <div class="info-text" id="ridge-info-text" style="display: none;">
+                    <strong>What is Ridge?</strong><br>
+                    When there's not enough data to clearly identify player skills, we need to add an assumption.<br>
+                    Ridge does this by assuming that player skills follow a distribution with a certain standard
+                    deviation.<br>
+                    This helps the model estimate skills more reliably — even when the data alone isn't enough.
+                </div>
+                <input type="checkbox" id="ridge" name="ridge" value="on!">
+                <br><br>
+
+                <!-- Tau input -->
+                <div id="tau-wrapper">
+                    <label for="tau">
+                        How much variation to assume? (tau)
+                        <button type="button" class="info-btn" id="tau-info-btn"
+                            aria-controls="tau-info-text">ℹ️</button>
+                    </label>
+                    <div class="info-text" id="tau-info-text" style="display: none;">
+                        <strong>What is Tau?</strong><br>
+                        Tau sets how much variation in player skills we assume before looking at the data.<br>
+                        It's the standard deviation of that prior belief.<br>
+                        A higher tau means we assume skills could differ a lot, while a lower tau assumes players are
+                        more similar.<br>
+                        With limited data, tau has more influence — the model relies more on the assumption when the
+                        evidence is weak.
+                    </div>
+                    <input type="number" id="tau" name="tau" step="0.1" min="0.1" max="100" value="1" required>
+                    <br><br>
+                </div>
+
+                <button type="submit">Analyze</button>
+                <div class="error-msg-wrapper">
+                    <br>
+                    <span id="form-error"></span>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <div class="loading">
+        <div class="container">
+            <strong>Loading...</strong>
+            <div class="load-icon">🔃</div><br>
+            <em>Free server may be starting up. This can take up to a minute.</em>
+        </div>
+    </div>
+
+    <div class="results">
+        <div class="container">
+            <h2>Results 🚀</h2>
+            <div class="ranking">
+                <h3>Player Rankings</h3>
+                <p>
+                    The table below shows each player's estimated skill level. A higher skill score
+                    means the player is more likely to win, taking into account the strength of both teammates and
+                    opponents. The final column indicates whether a player's skill significantly differs from the group
+                    average, based on the selected confidence level (alpha).
+                </p>
+                <div class="table-wrapper fading">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Skill (θ)</th>
+                                <th>Win Rate</th>
+                                <th>Sig. vs Average</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- <tr>
+                                <td>Anna</td>
+                                <td>1.25</td>
+                                <td>60%</td>
+                                <td>🟢 Better</td>
+                            </tr>
+                            <tr>
+                                <td>Bram</td>
+                                <td>0.10</td>
+                                <td>50%</td>
+                                <td>⚪️ Neutral</td>
+                            </tr>
+                            <tr>
+                                <td>Cees</td>
+                                <td>-1.00</td>
+                                <td>40%</td>
+                                <td>🔴 Worse</td>
+                            </tr> -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="pairwise">
+                <h3>Pairwise Skill Comparisons</h3>
+                <div>
+                    <div id="any-sig">
+                        <p>
+                            Based on the data, these statements are likely true — with less than a
+                            <span id="alpha-holder"></span>% chance of being incorrect:
+                        </p>
+                        <ul>
+                            <!-- <li>Anna is significantly more skilled than Bram (θ diff = 1.1, p < 0.05)</li> -->
+                        </ul>
+                    </div>
+                    <div id="no-sig">
+                        <p>
+                            No player was found to be significantly better than another. Want to reveal subtle
+                            differences? Add more games or reduce the confidence level (alpha).
+                        </p>
+                    </div>
+                </div>
+                <button id="toggle-pairwise-table">
+                    Show pairwise table
+                </button>
+                <div id="pairwise-table">
+                    <h4>Pairwise Table</h4>
+                    <p>
+                        The table below shows the difference in skill between each pair of players. Each value
+                        represents how much more skilled the row player is compared to the column player. The standard
+                        deviation of the estimate is shown in parentheses, along with a symbol indicating whether the
+                        difference is statistically significant.
+                    </p>
+                    <div class="table-wrapper">
+                        <table>
+                            <!-- <thead>
+                                <tr>
+                                    <th>vs</th>
+                                    <th>Anna</th>
+                                    <th>Bram</th>
+                                    <th>Cees</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>Anna</th>
+                                    <td>—</td>
+                                    <td>+1.1 (±0.3) 🟢</td>
+                                    <td>+2.3 (±0.4) 🟢</td>
+                                </tr>
+                                <tr>
+                                    <th>Bram</th>
+                                    <td>-1.1 (±0.3) 🔴</td>
+                                    <td>—</td>
+                                    <td>+1.2 (±0.5) ⚪️</td>
+                                </tr>
+                                <tr>
+                                    <th>Cees</th>
+                                    <td>-2.3 (±0.4) 🔴</td>
+                                    <td>-1.2 (±0.5) ⚪️</td>
+                                    <td>—</td>
+                                </tr>
+                            </tbody> -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            ♣️♣️♣️♣️♣️♣️♣️♣️
+        </div>
+    </footer>
+
+
+    <script>
+        function toggleInfo(id) {
+            const allInfoBoxes = document.querySelectorAll('.info-text');
+            const allButtons = document.querySelectorAll('.info-btn');
+
+            const targetBox = document.getElementById(id);
+            const targetBtn = document.querySelector(`button[aria-controls="${id}"]`);
+
+            const isHidden = targetBox.style.display === 'none';
+
+            // Hide all other info boxes and reset buttons
+            allInfoBoxes.forEach(el => el.style.display = 'none');
+            allButtons.forEach(btn => btn.textContent = 'ℹ️');
+
+            // Toggle selected one
+            if (isHidden) {
+                targetBox.style.display = 'block';
+                targetBtn.textContent = '❌';
+            } else {
+                targetBox.style.display = 'none';
+                targetBtn.textContent = 'ℹ️';
+            }
+        }
+
+        // Assign listeners
+        document.getElementById('alpha-info-btn').addEventListener('click', () => {
+            toggleInfo('alpha-info-text');
+        });
+
+        document.getElementById('file-info-btn').addEventListener('click', () => {
+            toggleInfo('file-info-text');
+        });
+
+        document.getElementById('ridge-info-btn').addEventListener('click', () => {
+            toggleInfo('ridge-info-text');
+        });
+
+        document.getElementById('tau-info-btn').addEventListener('click', () => {
+            toggleInfo('tau-info-text');
+        });
+
+        document.getElementById('ridge').addEventListener('change', (event) => {
+            const el = document.getElementById('tau-wrapper');
+            if (event.target.checked) {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+
+
+        document.getElementById('toggle-pairwise-table').addEventListener('click', () => {
+            const el = document.getElementById('pairwise-table');
+            const button = document.getElementById('toggle-pairwise-table');
+
+            if (getComputedStyle(el).display === 'none') {
+                el.style.display = 'block';
+                button.textContent = 'Hide pairwise table';
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        el.classList.add('active')
+                    });
+                });
+
+            } else {
+                el.style.display = 'none';
+                button.textContent = 'Show pairwise table';
+
+                el.classList.remove('active')
+            }
+        });
+    </script>
+
+    <script src="front-end/process-form.js"></script>
+</body>

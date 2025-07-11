@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
-from analysis_code import analyse_games_mle, verify_games_data
+from analysis_code import analyze_games, verify_games_data
 import pandas as pd
 import io
 from flask_cors import CORS
+import time
 
 
 app = Flask(__name__)
@@ -19,87 +20,39 @@ def read_file(file):
     return games
 
 
-def format_output(
-    players,
-    win_ratios,
-    theta,
-    pairwise_differences,
-    pairwise_std,
-    significant,
-):
-    pairwise_table = [
-        [
-            (
-                None
-                if i == j
-                else {
-                    "diff": pairwise_differences[i, j],
-                    "std": pairwise_std[i, j],
-                    "significant": bool(significant[i, j]),
-                }
-            )
-            for j in range(len(players))
-        ]
-        for i in range(len(players))
-    ]
-
-    statements = [
-        f"{players[i]} is significantly more likely to win than {players[j]}"
-        for i in range(len(players))
-        for j in range(len(players))
-        if i != j and significant[i, j] and pairwise_differences[i, j] > 0
-    ]
-
-    return jsonify(
-        {
-            "players": players.tolist(),
-            "skill_scores": [float(s) for s in theta],
-            "win_ratios": [float(r) for r in win_ratios],
-            "pairwise_table": pairwise_table,
-            "significant_statements": statements,
-        }
-    )
-
-
 @app.post("/analyze")
 def analyze():
+    # time.sleep(1)
+    # load params with defaults
     file = request.files.get("file")
     alpha = float(request.form.get("alpha", 0.05))
+    method = str(request.form.get("method", "mle"))
+    tau = float(request.form.get("tau", 1.0))
 
+    # ensure file was provided
     if not file or not file.filename:
-        return jsonify({"error": "No data uploaded"}), 400
+        return jsonify({"error": "No dataset provided"}), 400
 
+    # read the file
     try:
         games = read_file(file)
     except Exception as e:
         return jsonify({"error": f"Failed to read data: {str(e)}"}), 400
 
+    # verify data is compatitable with analysis
     try:
         verify_games_data(games)
     except Exception as e:
         return jsonify({"error": f"Dataset is invalid: {str(e)}"}), 400
 
+    # do the analysis
     try:
-        (
-            players,
-            win_ratios,
-            theta,
-            pairwise_differences,
-            pairwise_std,
-            significant,
-        ) = analyse_games_mle(games, alpha)
+        result = analyze_games(games, alpha, method, tau)
     except Exception as e:
         return jsonify({"error": f"Analysis failed: {str(e)}"}), 500
 
-    return format_output(
-        players,
-        win_ratios,
-        theta,
-        pairwise_differences,
-        pairwise_std,
-        significant,
-    )
+    return jsonify(result)
 
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
